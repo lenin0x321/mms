@@ -21,10 +21,10 @@ const Userschema = new Schema({
     },
     role:{
         type: [String],
-        default: ["Teacher"],
-        enum: ["Studient", "Teacher", "Admin"],
+        default: ["Student"],
+        enum: ["Student", "Teacher", "Admin"],
     }
 },{timestamps:true});
 
-const User = mongoose.model('User', Userschema);
-module.exports = User;
+const Student = mongoose.model('Student', Userschema);
+module.exports = Student;

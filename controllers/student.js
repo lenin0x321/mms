@@ -1,15 +1,15 @@
-const User = require('../modules/user');
-const {hashpassword, comparehash} = require('../utils/hash')
+const Student = require('../modules/student');
 const jwt = require('jsonwebtoken');
-exports.register = async(req,res)=>{
+const {hashpassword, comparehash} = require('../utils/hash')
+exports.createstudent = async (req,res)=>{
     try{
         const {name, password ,email} = req.body
         if(!name) return res.status.send("Name is required field.");
         if(!password||password.length <6) return res.status(400).send("Please check your password field is empty or password length min 6.");
-        let userExit = await User.findOne({email}).exec();
+        let userExit = await Student.findOne({email}).exec();
         if(userExit) return res.status(400).send('The email is already registered.');
         let hashedpassword = await hashpassword(password);
-        const user = new User({
+        const user = new Student({
             name,
             email,
             password: hashedpassword
@@ -22,13 +22,13 @@ exports.register = async(req,res)=>{
     
 };
 
-exports.login = async(req,res)=>{
+exports.studentlogin = async(req,res)=>{
     try{
         const {email, password} = req.body
-        user = await User.findOne({email}).exec();
-        if(!user) return res.status(400).send('User is not Found');
+        user = await Student.findOne({email}).exec();
+        if(!user) return res.send('User is not Found');
         let match = await comparehash(password,user.password);
-        if(!match) return res.status(400).send('password is incorrect');
+        if(!match) return res.send('password is incorrect');
         const token = jwt.sign({_id:user._id},process.env.jwt_securt,{
             expiresIn:"7d"
         });
@@ -42,20 +42,16 @@ exports.login = async(req,res)=>{
     };
 };
 
-exports.logout = (req,res)=>{
-    res.clearCookie('token')
-    res.send('okay')
-}
-
-exports.current_user = async (req,res)=>{
+exports.all = async(req,res)=>{
     try{
-        console.log(req)
-        let user = await User.findById(req.user._id).select('-password').exec();
-        res.status(200).send(user);
-        res.send('okay')
+        Student.find({},(err,users)=>{
+            if(err){
+                console.log('Something goes wrong!')
+            }
+            res.send(users)
+        })
     }catch(err){
-        console.log(err)
+        res.send(err)
     }
-
-};
+}
 
