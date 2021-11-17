@@ -1,10 +1,21 @@
-const Student = require('../modules/student');
-const Marks = require('../modules/marks');
+const {Client} = require('pg');
+const client = new Client({
+    host: "localhost",
+    port: 5432,
+    user: "postgres",
+    password: "lenin@123",
+    database: "postgres"
+})
+client.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
+});
 exports.info = async(req,res)=>{
     try{
         let objectid = req.params._id
-        user_info = await Student.findOne({objectid}).exec();
-        res.status(200).send(user_info);
+        console.log(objectid)
+        user_info = await client.query('SELECT * FROM Users WHERE id=$1',[objectid]);
+        res.status(200).send(user_info.rows);
     }catch(err){
         console.log(err)
     }
@@ -13,23 +24,7 @@ exports.addmarks = async(req,res)=>{
     try{
         let objectid = req.params._id;
         const {subject_one,subject_two,subject_three,subject_four,subject_five,subject_six,subject_one_mark,subject_two_mark,subject_three_mark,subject_four_mark,subject_five_mark,subject_six_mark} = req.body
-        console.log(subject_one)
-        const user_save =new Marks({
-            object_id : objectid,
-            subject_one:subject_one,
-            subject_one_mark:subject_one_mark,
-            subject_two:subject_two,
-            subject_two_mark:subject_two_mark,
-            subject_three:subject_three,
-            subject_three_mark:subject_three_mark,
-            subject_four:subject_four,
-            subject_four_mark:subject_four_mark,
-            subject_five:subject_five,
-            subject_five_mark:subject_five_mark,
-            subject_six:subject_six,
-            subject_six_mark : subject_six_mark,
-        })
-        await user_save.save();
+        await client.query("INSERT INTO marks(object_id,subject_one,subject_one_mark,subject_two,subject_two_mark,subject_three,subject_three_mark,subject_four,subject_four_mark,subject_five,subject_five_mark,subject_six,subject_six_mark) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *",[objectid,subject_one,subject_two,subject_three,subject_four,subject_five,subject_six,subject_one_mark,subject_two_mark,subject_three_mark,subject_four_mark,subject_five_mark,subject_six_mark]);
         res.send('okay')
     }catch(err){
         console.log(err)

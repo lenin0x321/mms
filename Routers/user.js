@@ -9,7 +9,6 @@ Router.post('/login',login);
 Router.get('/logout',logout);
 Router.get('/current-user',requiredSigin,current_user);
 Router.post('/create-student',requiredSigin,createstudent);
-Router.post('/student-login',studentlogin);
 Router.get('/all',all);
 Router.post('/info/:_id',info);
 Router.post('/create-mark/:_id',addmarks);
